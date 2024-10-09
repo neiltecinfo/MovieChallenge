@@ -50,7 +50,7 @@ const Watchlist = () => {
           />
         ) : (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <Text>No Watchlist Movies movies added</Text>
+            <Text>NO MOVIES ADDED TO WATCHLIST</Text>
             <View>
               <TouchableOpacity style={styles.goToHomeButton} 
               onPress={() => navigation.navigate('NonAuthScreens', {

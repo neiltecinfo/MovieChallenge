@@ -48,7 +48,7 @@ const FavMovies = () => {
           />
         ) : (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <Text>No favorite movies selected</Text>
+            <Text>NO MOVIES ADDED TO FAVOURITES</Text>
             <View>
               <TouchableOpacity style={styles.goToHomeButton} 
               onPress={() => navigation.navigate('NonAuthScreens', {
