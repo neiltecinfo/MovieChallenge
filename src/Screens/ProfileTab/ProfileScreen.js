@@ -68,9 +68,7 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.logOutView}>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => clearAll()}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => clearAll()}>
           <Text style={styles.logOutText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -88,18 +86,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginHorizontal: 10,
     borderRadius: 5,
-    padding: 10
+    padding: 10,
   },
-  mainView:{
-    backgroundColor:"#FFF",
-    flex: 1
+  mainView: {
+    backgroundColor: '#FFF',
+    flex: 1,
   },
-  logOutText:{
+  logOutText: {
     fontSize: 15,
     color: '#FFF',
-    fontWeight:'700'
+    fontWeight: '700',
   },
-  loginButton:{
+  loginButton: {
     borderWidth: 1,
     padding: 4,
     justifyContent: 'center',
@@ -107,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#175c11',
   },
-  logOutView:{
+  logOutView: {
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -118,6 +116,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   headerText: {
-    fontSize: 25
+    fontSize: 25,
   },
 });

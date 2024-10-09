@@ -1,10 +1,17 @@
-import {View, Text, FlatList, TouchableOpacity, StyleSheet, Alert} from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux'; // Import useSelector to access state
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {useNavigation} from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { removeFavoriteMovies } from '../../Redux/TaskSlice';
+import {useDispatch} from 'react-redux';
+import {removeFavoriteMovies} from '../../Redux/TaskSlice';
 
 const FavMovies = () => {
   const favoriteMovies = useSelector(state => state.tasks.favoriteMovies); // Access favorite movies from the store
@@ -18,11 +25,10 @@ const FavMovies = () => {
     return (
       <TouchableOpacity>
         <View style={styles.buttonView}>
-          <View
-            style={styles.checkBoxView}>
+          <View style={styles.checkBoxView}>
             <BouncyCheckbox
               size={25}
-              fillColor="red"
+              fillColor='#175c11'
               unFillColor="#FFFFFF"
               // text="Custom Checkbox"
               iconStyle={styles.outerIconInnerIconStyle}
@@ -32,8 +38,7 @@ const FavMovies = () => {
               onPress={isChecked => handleCheckboxPress(item, isChecked)}
             />
           </View>
-          <View
-            style={styles.itemNameView}>
+          <View style={styles.itemNameView}>
             <Text>{item.name}</Text>
           </View>
         </View>
@@ -41,47 +46,39 @@ const FavMovies = () => {
     );
   };
 
-  const deleteItem = () =>{
-    console.log("Start deleting items")
-    if(selectedItems.length == 0){
-      Alert.alert("No items have been selected for delete")
+  const deleteItem = () => {
+    console.log('Start deleting items');
+    if (selectedItems.length == 0) {
+      Alert.alert('No items have been selected for delete');
     } else {
-      dispatch(removeFavoriteMovies(selectedItems.map(item => item.id)))
-      setSelectedItems([])
+      dispatch(removeFavoriteMovies(selectedItems.map(item => item.id)));
+      setSelectedItems([]);
     }
-  }
-
-
-
+  };
 
   const handleCheckboxPress = (item, isChecked) => {
     setItemCheckedStatus(prevStatus => ({
       ...prevStatus,
       [item.id]: isChecked,
     }));
-  
+
     // Update the selectedItems array based on the checked status
     if (isChecked) {
       setSelectedItems(prevSelectedItems => [...prevSelectedItems, item]);
     } else {
       setSelectedItems(prevSelectedItems =>
-        prevSelectedItems.filter(i => i.id !== item.id)
+        prevSelectedItems.filter(i => i.id !== item.id),
       );
     }
   };
 
   useEffect(() => {
-    console.log("The array of selected items in Favourites is ", selectedItems);
-    console.log("The number of selected items in Favourites is ", selectedItems.length);
+    console.log('The array of selected items in Favourites is ', selectedItems);
+    console.log(
+      'The number of selected items in Favourites is ',
+      selectedItems.length,
+    );
   }, [selectedItems]);
-
-
-
-
-
-
-
-
 
   return (
     <>
@@ -89,34 +86,31 @@ const FavMovies = () => {
         <Text style={styles.headerText}>Favourite Movies</Text>
       </View>
       <View style={styles.listView}>
-        {favoriteMovies.length > 0 ? 
-        (
+        {favoriteMovies.length > 0 ? (
           <>
-          <FlatList
-            data={favoriteMovies}
-            keyExtractor={item => item.id}
-            renderItem={renderItem1}
-          />
-          <TouchableOpacity style={{position:"absolute", bottom:10, right:10, borderWidth:1, padding:10}}
-              onPress={deleteItem}
-            >
+            <FlatList
+              data={favoriteMovies}
+              keyExtractor={item => item.id}
+              renderItem={renderItem1}
+            />
+            <TouchableOpacity style={styles.deleteButton} onPress={deleteItem}>
               <Text>Delete</Text>
             </TouchableOpacity>
           </>
-        ) 
-        : 
-        (
+        ) : (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text>NO MOVIES ADDED TO FAVOURITES</Text>
             <View>
-              <TouchableOpacity style={styles.goToHomeButton} 
-              onPress={() => navigation.navigate('NonAuthScreens', {
-                screen: 'BottomTabNavigator',
-                params: {
-                  screen: "Home"
-                }
-              })}
-              >
+              <TouchableOpacity
+                style={styles.goToHomeButton}
+                onPress={() =>
+                  navigation.navigate('NonAuthScreens', {
+                    screen: 'BottomTabNavigator',
+                    params: {
+                      screen: 'Home',
+                    },
+                  })
+                }>
                 <Text>Go to Home</Text>
               </TouchableOpacity>
             </View>
@@ -130,18 +124,25 @@ const FavMovies = () => {
 export default FavMovies;
 
 const styles = StyleSheet.create({
-  checkBoxView:{
+  checkBoxView: {
     width: '15%',
     marginLeft: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  goToHomeButton:{
-    borderWidth:1,
-    padding: 5,
-
+  deleteButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    borderWidth: 1,
+    padding: 10,
   },
-  itemNameView:{
+  goToHomeButton: {
+    borderWidth: 1,
+    padding: 5,
+    borderRadius: 5,
+  },
+  itemNameView: {
     marginBottom: 10,
     marginRight: 1,
     justifyContent: 'center',
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   outerIconInnerIconStyle: {
-    borderColor: 'red',
+    borderColor: '#175c11',
     borderRadius: 8,
     borderWidth: 1,
   },

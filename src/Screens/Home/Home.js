@@ -130,7 +130,7 @@ const Home = () => {
         <View style={styles.checkBox}>
           <BouncyCheckbox
             size={25}
-            fillColor="red"
+            fillColor='#175c11'
             unFillColor="#FFFFFF"
             iconStyle={styles.outerIconInnerIconStyle}
             innerIconStyle={styles.outerIconInnerIconStyle}
@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 10,
     padding: 10,
+    borderRadius: 5
   },
   filterButton: {
     borderWidth: 1,
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   outerIconInnerIconStyle: {
-    borderColor: 'red',
+    borderColor: '#175c11',
     borderRadius: 8,
     borderWidth: 1,
   },
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
     right: 16,
     borderWidth: 1,
     padding: 4,
-    backgroundColor: 'green',
+    backgroundColor: '#175c11',
     marginBottom: 5,
   },
   addToFavButton: {
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
     right: 16,
     borderWidth: 1,
     padding: 4,
-    backgroundColor: 'green',
+    backgroundColor: '#175c11',
     marginBottom: 5,
   },
 });

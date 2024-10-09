@@ -1,32 +1,34 @@
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {useNavigation} from '@react-navigation/native';
-import { removeWatchlistMovies } from '../../Redux/TaskSlice';
-import { useDispatch } from 'react-redux';
+import {removeWatchlistMovies} from '../../Redux/TaskSlice';
+import {useDispatch} from 'react-redux';
 
 const Watchlist = () => {
   const watchlistMovies = useSelector(state => state.tasks.watchlistMovies);
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemCheckedStatus, setItemCheckedStatus] = useState({});
-
-
 
   const renderItem1 = ({item}) => {
     return (
       <TouchableOpacity>
-        <View
-          style={styles.buttonView}>
-          <View
-            style={styles.checkBoxView}>
+        <View style={styles.buttonView}>
+          <View style={styles.checkBoxView}>
             <BouncyCheckbox
               size={25}
-              fillColor="red"
+              fillColor="#175c11"
               unFillColor="#FFFFFF"
               // text="Custom Checkbox"
               iconStyle={styles.outerIconInnerIconStyle}
@@ -37,8 +39,7 @@ const Watchlist = () => {
               onPress={isChecked => handleCheckboxPress(item, isChecked)}
             />
           </View>
-          <View
-            style={styles.itemNameView}>
+          <View style={styles.itemNameView}>
             <Text>{item.name}</Text>
           </View>
         </View>
@@ -46,36 +47,35 @@ const Watchlist = () => {
     );
   };
 
-  const deleteItem = () =>{
-    console.log("Start deleting items")
-    if(selectedItems.length == 0){
-      Alert.alert("No items have been selected for delete")
+  const deleteItem = () => {
+    console.log('Start deleting items');
+    if (selectedItems.length == 0) {
+      Alert.alert('No items have been selected for delete');
     } else {
-      dispatch(removeWatchlistMovies(selectedItems.map(item => item.id)))
-      setSelectedItems([])
+      dispatch(removeWatchlistMovies(selectedItems.map(item => item.id)));
+      setSelectedItems([]);
     }
-  }
-
+  };
 
   const handleCheckboxPress = (item, isChecked) => {
     setItemCheckedStatus(prevStatus => ({
       ...prevStatus,
       [item.name]: isChecked,
     }));
-  
+
     // Update the selectedItems array based on the checked status
     if (isChecked) {
       setSelectedItems(prevSelectedItems => [...prevSelectedItems, item]);
     } else {
       setSelectedItems(prevSelectedItems =>
-        prevSelectedItems.filter(i => i.name !== item.name)
+        prevSelectedItems.filter(i => i.name !== item.name),
       );
     }
   };
 
   useEffect(() => {
-    console.log("The array of selected items is ", selectedItems);
-    console.log("The number of selected items is ", selectedItems.length);
+    console.log('The array of selected items is ', selectedItems);
+    console.log('The number of selected items is ', selectedItems.length);
   }, [selectedItems]);
 
   return (
@@ -85,34 +85,31 @@ const Watchlist = () => {
       </View>
 
       <View style={styles.listView}>
-        {watchlistMovies.length > 0 ? 
-        (
+        {watchlistMovies.length > 0 ? (
           <>
-          <FlatList
-            data={watchlistMovies}
-            keyExtractor={item => item.id}
-            renderItem={renderItem1}
+            <FlatList
+              data={watchlistMovies}
+              keyExtractor={item => item.id}
+              renderItem={renderItem1}
             />
-            <TouchableOpacity style={{position:"absolute", bottom:10, right:10, borderWidth:1, padding:10}}
-              onPress={deleteItem}
-            >
+            <TouchableOpacity style={styles.deleteButton} onPress={deleteItem}>
               <Text>Delete</Text>
             </TouchableOpacity>
           </>
-        ) 
-        : 
-        (
+        ) : (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text>NO MOVIES ADDED TO WATCHLIST</Text>
             <View>
-              <TouchableOpacity style={styles.goToHomeButton} 
-              onPress={() => navigation.navigate('NonAuthScreens', {
-                screen: 'BottomTabNavigator',
-                params: {
-                  screen: "Home"
-                }
-              })}
-              >
+              <TouchableOpacity
+                style={styles.goToHomeButton}
+                onPress={() =>
+                  navigation.navigate('NonAuthScreens', {
+                    screen: 'BottomTabNavigator',
+                    params: {
+                      screen: 'Home',
+                    },
+                  })
+                }>
                 <Text>Go to Home</Text>
               </TouchableOpacity>
             </View>
@@ -131,18 +128,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderWidth: 1,
   },
-  goToHomeButton:{
-    borderWidth:1,
+  goToHomeButton: {
+    borderWidth: 1,
     padding: 5,
-
+    borderRadius: 5,
   },
-  checkBoxView:{
+  deleteButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    borderWidth: 1,
+    padding: 10,
+  },
+  checkBoxView: {
     width: '15%',
     marginLeft: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  itemNameView:{
+  itemNameView: {
     marginBottom: 10,
     marginRight: 1,
     justifyContent: 'center',
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingLeft: 10,
   },
-  buttonView:{
+  buttonView: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -163,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   outerIconInnerIconStyle: {
-    borderColor: 'red',
+    borderColor: '#175c11',
     borderRadius: 8,
     borderWidth: 1,
   },
