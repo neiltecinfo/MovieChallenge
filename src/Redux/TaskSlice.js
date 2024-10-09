@@ -31,7 +31,17 @@ export const TaskSlice = createSlice({
                   movie => !state.watchlistMovies.find(fav => fav.id === movie.id),
          )
          state.watchlistMovies.push(...newMovies)
-    }
+    },
+    removeWatchlistMovies: (state, action) => {
+      state.watchlistMovies = state.watchlistMovies.filter(
+        movie => !action.payload.includes(movie.id),
+      );
+    },
+    removeFavoriteMovies: (state, action) => {
+      state.favoriteMovies = state.favoriteMovies.filter(
+        movie => !action.payload.includes(movie.id),
+      );
+    },
     
 
 
@@ -40,6 +50,6 @@ export const TaskSlice = createSlice({
   },
 });
 
-export const {addTask, deleteTask, addFavoriteMovies, addWatchlistMovies} = TaskSlice.actions;
+export const {addTask, deleteTask, addFavoriteMovies, addWatchlistMovies, removeWatchlistMovies, removeFavoriteMovies } = TaskSlice.actions;
 
 export default TaskSlice.reducer;

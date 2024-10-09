@@ -23,17 +23,10 @@ const Home = () => {
   const [movies, setMovies] = useState(null);
   const [sortedMovies, setSortedMovies] = useState(null); // State for sorted movies
   const [loading, setLoading] = useState(false);
-  const [checked, isChecked] = useState(false);
-
-  const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [showOptions, setShowOptions] = useState(false);
   const [itemCheckedStatus, setItemCheckedStatus] = useState({});
   const [isCheckedState, setIsCheckedState] = useState(false);
-
-  const [selectedValue, setSelectedValue] = useState(null);
   const [searchMovie, setSearchMovie] = useState(null);
-
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filterButtonPress, setFilterButtonPress] = useState(false);
 
@@ -88,16 +81,9 @@ const Home = () => {
     setFilterButtonPress(true);
   };
 
-  // const filteredMovies = movies?.filter(movie =>
-  //   movie.name.toLowerCase().includes(searchMovie.toLowerCase())
-  // );
-
   const filteredMovies = sortedMovies?.filter(movie =>
     movie.name.toLowerCase().includes((searchMovie || '').toLowerCase()),
   );
-  // const filteredMovies = movies?.filter(movie =>
-  //   movie.name.toLowerCase().includes((searchMovie || '').toLowerCase())
-  // );
 
   const handleCheckboxPress = (isChecked, item) => {
     setIsCheckedState(isChecked);
@@ -107,11 +93,13 @@ const Home = () => {
     }));
 
     if (isChecked) {
-      setSelectedItems(prevItems => [...selectedItems, item]);
+      setSelectedItems([...selectedItems, item]);
     } else {
       setSelectedItems(selectedItems.filter(i => i.id !== item.id));
     }
   };
+
+
 
   const isAnyItemSelected = selectedItems.length > 0;
 

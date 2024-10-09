@@ -1,12 +1,19 @@
-import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
-import React from 'react';
+import {View, Text, FlatList, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import {useSelector} from 'react-redux'; // Import useSelector to access state
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {useNavigation} from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { removeFavoriteMovies } from '../../Redux/TaskSlice';
 
 const FavMovies = () => {
   const favoriteMovies = useSelector(state => state.tasks.favoriteMovies); // Access favorite movies from the store
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [itemCheckedStatus, setItemCheckedStatus] = useState({});
+
   const renderItem1 = ({item}) => {
     return (
       <TouchableOpacity>
@@ -21,8 +28,8 @@ const FavMovies = () => {
               iconStyle={styles.outerIconInnerIconStyle}
               innerIconStyle={styles.outerIconInnerIconStyle}
               textStyle={{fontFamily: 'JosefinSans-Regular'}}
-              // onPress={isChecked => handleCheckboxPress(isChecked, item)}
               // isChecked={itemCheckedStatus[item.name]}
+              onPress={isChecked => handleCheckboxPress(item, isChecked)}
             />
           </View>
           <View
@@ -34,19 +41,71 @@ const FavMovies = () => {
     );
   };
 
+  const deleteItem = () =>{
+    console.log("Start deleting items")
+    if(selectedItems.length == 0){
+      Alert.alert("No items have been selected for delete")
+    } else {
+      dispatch(removeFavoriteMovies(selectedItems.map(item => item.id)))
+      setSelectedItems([])
+    }
+  }
+
+
+
+
+  const handleCheckboxPress = (item, isChecked) => {
+    setItemCheckedStatus(prevStatus => ({
+      ...prevStatus,
+      [item.id]: isChecked,
+    }));
+  
+    // Update the selectedItems array based on the checked status
+    if (isChecked) {
+      setSelectedItems(prevSelectedItems => [...prevSelectedItems, item]);
+    } else {
+      setSelectedItems(prevSelectedItems =>
+        prevSelectedItems.filter(i => i.id !== item.id)
+      );
+    }
+  };
+
+  useEffect(() => {
+    console.log("The array of selected items in Favourites is ", selectedItems);
+    console.log("The number of selected items in Favourites is ", selectedItems.length);
+  }, [selectedItems]);
+
+
+
+
+
+
+
+
+
   return (
     <>
       <View style={styles.headerView}>
         <Text style={styles.headerText}>Favourite Movies</Text>
       </View>
       <View style={styles.listView}>
-        {favoriteMovies.length > 0 ? (
+        {favoriteMovies.length > 0 ? 
+        (
+          <>
           <FlatList
             data={favoriteMovies}
             keyExtractor={item => item.id}
             renderItem={renderItem1}
           />
-        ) : (
+          <TouchableOpacity style={{position:"absolute", bottom:10, right:10, borderWidth:1, padding:10}}
+              onPress={deleteItem}
+            >
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </>
+        ) 
+        : 
+        (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text>NO MOVIES ADDED TO FAVOURITES</Text>
             <View>

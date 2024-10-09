@@ -1,12 +1,22 @@
-import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
-import React from 'react';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import {useSelector} from 'react-redux';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {useNavigation} from '@react-navigation/native';
+import { removeWatchlistMovies } from '../../Redux/TaskSlice';
+import { useDispatch } from 'react-redux';
 
 const Watchlist = () => {
   const watchlistMovies = useSelector(state => state.tasks.watchlistMovies);
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [itemCheckedStatus, setItemCheckedStatus] = useState({});
+
+
+
   const renderItem1 = ({item}) => {
     return (
       <TouchableOpacity>
@@ -24,6 +34,7 @@ const Watchlist = () => {
               textStyle={{fontFamily: 'JosefinSans-Regular'}}
               // onPress={isChecked => handleCheckboxPress(isChecked, item)}
               // isChecked={itemCheckedStatus[item.name]}
+              onPress={isChecked => handleCheckboxPress(item, isChecked)}
             />
           </View>
           <View
@@ -35,6 +46,38 @@ const Watchlist = () => {
     );
   };
 
+  const deleteItem = () =>{
+    console.log("Start deleting items")
+    if(selectedItems.length == 0){
+      Alert.alert("No items have been selected for delete")
+    } else {
+      dispatch(removeWatchlistMovies(selectedItems.map(item => item.id)))
+      setSelectedItems([])
+    }
+  }
+
+
+  const handleCheckboxPress = (item, isChecked) => {
+    setItemCheckedStatus(prevStatus => ({
+      ...prevStatus,
+      [item.name]: isChecked,
+    }));
+  
+    // Update the selectedItems array based on the checked status
+    if (isChecked) {
+      setSelectedItems(prevSelectedItems => [...prevSelectedItems, item]);
+    } else {
+      setSelectedItems(prevSelectedItems =>
+        prevSelectedItems.filter(i => i.name !== item.name)
+      );
+    }
+  };
+
+  useEffect(() => {
+    console.log("The array of selected items is ", selectedItems);
+    console.log("The number of selected items is ", selectedItems.length);
+  }, [selectedItems]);
+
   return (
     <>
       <View style={styles.headerView}>
@@ -42,13 +85,23 @@ const Watchlist = () => {
       </View>
 
       <View style={styles.listView}>
-        {watchlistMovies.length > 0 ? (
+        {watchlistMovies.length > 0 ? 
+        (
+          <>
           <FlatList
             data={watchlistMovies}
             keyExtractor={item => item.id}
             renderItem={renderItem1}
-          />
-        ) : (
+            />
+            <TouchableOpacity style={{position:"absolute", bottom:10, right:10, borderWidth:1, padding:10}}
+              onPress={deleteItem}
+            >
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </>
+        ) 
+        : 
+        (
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text>NO MOVIES ADDED TO WATCHLIST</Text>
             <View>
