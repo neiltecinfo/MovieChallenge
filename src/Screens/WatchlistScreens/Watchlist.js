@@ -21,6 +21,17 @@ const Watchlist = () => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemCheckedStatus, setItemCheckedStatus] = useState({});
 
+  const [isMainCheckboxSelected, setIsMainCheckboxSelected] = useState(false);
+
+  useEffect(() => {
+    const initialStatus = {};
+    watchlistMovies.forEach(movie => {
+      initialStatus[movie.id] = false; 
+    });
+    setItemCheckedStatus(initialStatus);
+    setIsMainCheckboxSelected(false);
+  }, [watchlistMovies]);
+
   const renderItem1 = ({item}) => {
     return (
       <TouchableOpacity>
@@ -30,17 +41,15 @@ const Watchlist = () => {
               size={25}
               fillColor="#175c11"
               unFillColor="#FFFFFF"
-              // text="Custom Checkbox"
               iconStyle={styles.outerIconInnerIconStyle}
               innerIconStyle={styles.outerIconInnerIconStyle}
               textStyle={{fontFamily: 'JosefinSans-Regular'}}
-              // onPress={isChecked => handleCheckboxPress(isChecked, item)}
-              // isChecked={itemCheckedStatus[item.name]}
               onPress={isChecked => handleCheckboxPress(item, isChecked)}
+              isChecked={itemCheckedStatus[item.title]}
             />
           </View>
           <View style={styles.itemNameView}>
-            <Text>{item.name}</Text>
+            <Text>{item.original_title}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -73,6 +82,23 @@ const Watchlist = () => {
     }
   };
 
+  const handleAllBoxes = isChecked => {
+    setIsMainCheckboxSelected(isChecked);
+
+    const updatedStatus = {};
+    watchlistMovies.forEach(item => {
+      updatedStatus[item.title] = isChecked;
+    });
+
+    setItemCheckedStatus(updatedStatus);
+
+    if (isChecked) {
+      setSelectedItems(watchlistMovies);
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
   useEffect(() => {
     console.log('The array of selected items is ', selectedItems);
     console.log('The number of selected items is ', selectedItems.length);
@@ -84,38 +110,53 @@ const Watchlist = () => {
         <Text style={styles.headerText}>Watchlist Movies</Text>
       </View>
 
-      <View style={styles.listView}>
-        {watchlistMovies.length > 0 ? (
-          <>
-            <FlatList
-              data={watchlistMovies}
-              keyExtractor={item => item.id}
-              renderItem={renderItem1}
+      {watchlistMovies.length > 0 ? (
+        <>
+          <View style={{marginBottom: 15}}>
+            <BouncyCheckbox
+              size={25}
+              fillColor="#175c11"
+              unFillColor="#FFFFFF"
+              iconStyle={styles.outerIconInnerIconStyle}
+              innerIconStyle={styles.outerIconInnerIconStyle}
+              textStyle={{fontFamily: 'JosefinSans-Regular'}}
+              // onPress={isChecked => handleCheckboxPress(isChecked, item)}
+              // isChecked={itemCheckedStatus[item.title]}
+              isChecked={isMainCheckboxSelected}
+              onPress={isChecked => {
+                handleAllBoxes(isChecked);
+                setIsMainCheckboxSelected(isChecked); // Update main checkbox state
+              }}
             />
-            <TouchableOpacity style={styles.deleteButton} onPress={deleteItem}>
-              <Text>Delete</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <Text>NO MOVIES ADDED TO WATCHLIST</Text>
-            <View>
-              <TouchableOpacity
-                style={styles.goToHomeButton}
-                onPress={() =>
-                  navigation.navigate('NonAuthScreens', {
-                    screen: 'BottomTabNavigator',
-                    params: {
-                      screen: 'Home',
-                    },
-                  })
-                }>
-                <Text>Go to Home</Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        )}
-      </View>
+          <FlatList
+            data={watchlistMovies}
+            keyExtractor={item => item.id}
+            renderItem={renderItem1}
+          />
+          <TouchableOpacity style={styles.deleteButton} onPress={deleteItem}>
+            <Text>Delete</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+          <Text>NO MOVIES ADDED TO WATCHLIST</Text>
+          <View>
+            <TouchableOpacity
+              style={styles.goToHomeButton}
+              onPress={() =>
+                navigation.navigate('NonAuthScreens', {
+                  screen: 'BottomTabNavigator',
+                  params: {
+                    screen: 'Home',
+                  },
+                })
+              }>
+              <Text>Go to Home</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </>
   );
 };

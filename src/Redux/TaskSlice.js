@@ -42,11 +42,6 @@ export const TaskSlice = createSlice({
         movie => !action.payload.includes(movie.id),
       );
     },
-    
-
-
-
-
   },
 });
 

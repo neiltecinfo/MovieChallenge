@@ -250,7 +250,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   signUpButton: {
-    borderWidth: 2,
     paddingHorizontal: 25,
     paddingVertical: 10,
     backgroundColor: '#175c11',
@@ -283,11 +282,11 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     width: '100%',
     borderRadius: 5,
-    backgroundColor: '#afe0ab',
+    backgroundColor: '#bfe8bc',
   },
   input: {
     paddingHorizontal: 15,
-    backgroundColor: '#afe0ab',
+    backgroundColor: '#bfe8bc',
     borderRadius: 7,
     marginLeft: '10%',
     marginRight: '10%',

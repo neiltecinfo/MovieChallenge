@@ -15,26 +15,33 @@ import {useDispatch} from 'react-redux';
 import {addFavoriteMovies} from '../../Redux/TaskSlice';
 import {addWatchlistMovies} from '../../Redux/TaskSlice';
 import {useNavigation} from '@react-navigation/native';
-
+import StarIcon from '../../Assets/StarIcon.svg';
 import Modal from 'react-native-modal';
 import FilterIcon from '../../Assets/FilterIcon.svg';
 
 const Home = () => {
   const [movies, setMovies] = useState(null);
-  const [sortedMovies, setSortedMovies] = useState(null); // State for sorted movies
   const [loading, setLoading] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
   const [itemCheckedStatus, setItemCheckedStatus] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [sortedMovies, setSortedMovies] = useState(null); 
+  const [isMainCheckboxSelected, setIsMainCheckboxSelected] = useState(false);
+
+
   const [isCheckedState, setIsCheckedState] = useState(false);
   const [searchMovie, setSearchMovie] = useState(null);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filterButtonPress, setFilterButtonPress] = useState(false);
+  const [selectedAll, setSelectedAll] = useState(false);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  // const apiURL =
+  //   'https://api.themoviedb.org/3/movie/157336/videos?api_key=5bc7f5159e062208692dcd27aaa15e6b';
+
   const apiURL =
-    'https://api.themoviedb.org/3/movie/157336/videos?api_key=5bc7f5159e062208692dcd27aaa15e6b';
+    'https://api.themoviedb.org/3/discover/movie?api_key=5bc7f5159e062208692dcd27aaa15e6b';
 
   const fetchMovies = async () => {
     setLoading(true);
@@ -50,29 +57,81 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
   const handleCloseModal = () => {
     setFilterModalVisible(false);
   };
 
+  const filteredMovies = sortedMovies?.filter(movie =>
+    movie.title.toLowerCase().includes((searchMovie || '').toLowerCase()),
+  );
+
   const handleSort = sortType => {
-    setFilterModalVisible(false);
+    let sortedData;
+    const preSortedCheckedStatus = {...itemCheckedStatus};
 
     switch (sortType) {
       case 'alphabetical':
-        const sorted = [...movies].sort((a, b) => a.name.localeCompare(b.name));
-        setSortedMovies(sorted);
-        break;
-
-      case 'reverseAlphabetical':
-        const sorted1 = [...movies].sort((a, b) =>
-          b.name.localeCompare(a.name),
+        sortedData = sortedMovies.sort((a, b) =>
+          a.original_title.localeCompare(b.original_title),
         );
-        setSortedMovies(sorted1);
         break;
-
+      case 'reverseAlphabetical':
+        sortedData = sortedMovies.sort((b, a) =>
+          a.original_title.localeCompare(b.original_title),
+        );
+        break;
+      case 'highesttolowestrating':
+        sortedData = sortedMovies.sort((b, a) => a.vote_average - b.vote_average);
+        break;
+      case 'lowesttohighestrating':
+        sortedData = sortedMovies.sort((a, b) => a.vote_average - b.vote_average);
+        break;
       default:
         console.log('Invalid sort type');
     }
+    setSortedMovies(sortedData);
+
+    const updatedStatus = {};
+    sortedData.forEach(item => {
+      updatedStatus[item.id] = preSortedCheckedStatus[item.id];
+    });
+    console.log('updatedStatus: ', updatedStatus);
+    // if (isMainCheckboxSelected) {
+    //   sortedData.forEach(item => {
+    //     updatedStatus[item.title] = itemCheckedStatus[item.title];
+    //   });
+    // }
+    setItemCheckedStatus(updatedStatus);
+    setFilterModalVisible(false);
+  };
+
+
+
+  const convertDate = date => {
+    // conver date here
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const [year, month, day] = date.split('-');
+    const formattedDate = `${parseInt(day)} ${
+      months[parseInt(month) - 1]
+    }, ${year}`;
+    return formattedDate;
   };
 
   const chooseSortOption = () => {
@@ -81,15 +140,10 @@ const Home = () => {
     setFilterButtonPress(true);
   };
 
-  const filteredMovies = sortedMovies?.filter(movie =>
-    movie.name.toLowerCase().includes((searchMovie || '').toLowerCase()),
-  );
-
-  const handleCheckboxPress = (isChecked, item) => {
-    setIsCheckedState(isChecked);
+  const handleCheckboxPress = (item, isChecked) => {
     setItemCheckedStatus(prevStatus => ({
       ...prevStatus,
-      [item.site]: isChecked,
+      [item.id]: isChecked,
     }));
 
     if (isChecked) {
@@ -101,11 +155,19 @@ const Home = () => {
 
 
 
-  const isAnyItemSelected = selectedItems.length > 0;
+  // const handleCheckboxPress = (item, isChecked) => {
+  //   setItemCheckedStatus(prevStatus => ({
+  //     ...prevStatus,
+  //     [item.symbol]: isChecked,
+  //   }));
+  //   if (isChecked) {
+  //     setSelectedItems([...selectedItems, item]);
+  //   } else {
+  //     setSelectedItems(selectedItems.filter(i => i.symbol !== item.symbol));
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
+  const isAnyItemSelected = selectedItems.length > 0;
 
   const handleAddToFav = () => {
     dispatch(addFavoriteMovies(selectedItems)); // Dispatch the selected movies to the store
@@ -122,6 +184,26 @@ const Home = () => {
     });
   };
 
+
+  const handleAllBoxes = isChecked => {
+    setIsMainCheckboxSelected(isChecked);
+  
+    const updatedStatus = {};
+    const updatedSelectedItems = [];
+  
+    // Iterate through all movies and update their checked status
+    movies.forEach(item => {
+      updatedStatus[item.id] = isChecked; // Update the checkbox status for each item
+      if (isChecked) {
+        updatedSelectedItems.push(item); // Add to selected items if checked
+      }
+    });
+  
+    setItemCheckedStatus(updatedStatus); // Update state for individual item checkboxes
+    setSelectedItems(isChecked ? updatedSelectedItems : []); // Update selected items list
+  };
+  
+
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
@@ -130,25 +212,47 @@ const Home = () => {
         <View style={styles.checkBox}>
           <BouncyCheckbox
             size={25}
-            fillColor='#175c11'
+            fillColor="#175c11"
             unFillColor="#FFFFFF"
             iconStyle={styles.outerIconInnerIconStyle}
             innerIconStyle={styles.outerIconInnerIconStyle}
             textStyle={{fontFamily: 'JosefinSans-Regular'}}
-            onPress={isChecked => handleCheckboxPress(isChecked, item)}
-            isChecked={itemCheckedStatus[item.name]}
+            onPress={isChecked => handleCheckboxPress(item, isChecked)}
+            // isChecked={itemCheckedStatus[item.id]} 
+            isChecked={itemCheckedStatus[item.id || false]} 
           />
         </View>
-        <Text style={styles.itemNameText}>{item.name}</Text>
+        <View style={{flex: 1}}>
+          <Image
+            style={styles.tinyLogo}
+            source={{
+              uri: `https://image.tmdb.org/t/p/w500${item?.poster_path}`,
+            }}
+          />
+          <View style={styles.movieDetails}>
+            <Text style={styles.itemText}>{item.title}</Text>
+            <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.itemText}>{item.vote_average}</Text>
+                <StarIcon width={20} height={20} />
+              </View>
+              <Text style={styles.itemText}>Average Vote</Text>
+            </View>
+          </View>
+          <View style={styles.movieDetails}>
+            <Text style={styles.itemText}>Released on</Text>
+            <Text style={styles.itemText}>
+              {convertDate(item.release_date)}
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.mainView}>
-      <Text style={styles.headerText}>
-        Movies
-      </Text>
+      <Text style={styles.headerText}>Movies</Text>
 
       <TextInput
         placeholder="Search Movies"
@@ -169,23 +273,42 @@ const Home = () => {
         <Text> </Text>
       </View>
 
+      <View style={{marginLeft: 20, marginBottom: 15}}>
+        <BouncyCheckbox
+          size={25}
+          fillColor="#175c11"
+          unFillColor="#FFFFFF"
+          iconStyle={styles.outerIconInnerIconStyle}
+          innerIconStyle={styles.outerIconInnerIconStyle}
+          textStyle={{fontFamily: 'JosefinSans-Regular'}}
+          // onPress={isChecked => handleCheckboxPress(isChecked, item)}
+          // isChecked={itemCheckedStatus[item.title]}
+          isChecked={isMainCheckboxSelected}
+          onPress={isChecked => {
+            handleAllBoxes(isChecked);
+            setIsMainCheckboxSelected(isChecked); // Update main checkbox state
+          }}
+        />
+      </View>
+
       <FlatList
-        // data={movies}
-        data={filteredMovies}
+        // data={filteredMovies}
+        data={sortedMovies}
         keyExtractor={item => item.id}
         renderItem={renderItem}
+        ListFooterComponent={<View style={{height: 150}} />}
       />
       {isAnyItemSelected && (
         <View>
           <TouchableOpacity
             style={styles.addToFavButton}
             onPress={handleAddToFav}>
-            <Text style={{color: '#FFF'}}>Add to Fav</Text>
+            <Text style={styles.buttonText}>Add to Favourites</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addToListButton}
             onPress={handleAddToWatchlist}>
-            <Text style={{color: '#FFF'}}>Add to Watchlist</Text>
+            <Text style={styles.buttonText}>Add to Watchlist</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -208,6 +331,16 @@ const Home = () => {
               onPress={() => handleSort('alphabetical')}>
               <Text>Alphabetical (A - Z)</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButtons}
+              onPress={() => handleSort('highesttolowestrating')}>
+              <Text>Highest to Lowest Rating</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButtons}
+              onPress={() => handleSort('lowesttohighestrating')}>
+              <Text>Lowest to Highest Rating</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
       )}
@@ -224,16 +357,30 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 25,
-    textAlign:"center",
-    marginBottom: 10
+    textAlign: 'center',
+    marginBottom: 10,
   },
   modal: {
     justifyContent: 'flex-end',
     margin: 0,
   },
+  tinyLogo: {
+    width: 250,
+    height: 350,
+    alignSelf: 'center',
+    marginVertical: 10,
+    borderRadius: 10,
+  },
   itemNameText: {
     flexWrap: 'wrap',
     maxWidth: 190,
+  },
+  movieDetails: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 5,
+    marginHorizontal: 10,
   },
   checkBox: {
     flexDirection: 'row',
@@ -247,13 +394,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   listItem: {
-    borderWidth: 1,
     marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
     padding: 10,
-    borderRadius: 5
+    borderRadius: 5,
+    backgroundColor: '#bfe8bc',
   },
   filterButton: {
     borderWidth: 1,
@@ -282,18 +429,35 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     right: 16,
-    borderWidth: 1,
     padding: 4,
     backgroundColor: '#175c11',
     marginBottom: 5,
+    maxWidth: 100,
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   addToFavButton: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 75,
     right: 16,
-    borderWidth: 1,
-    padding: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     backgroundColor: '#175c11',
     marginBottom: 5,
+    maxWidth: 100,
+    flexWrap: 'wrap',
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#FFF',
+    maxWidth: 100,
+    flexWrap: 'wrap',
+    fontWeight: '500',
+  },
+  itemText: {
+    color: '#175c11',
+    fontWeight: '700',
   },
 });
